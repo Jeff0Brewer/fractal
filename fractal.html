@@ -17,22 +17,23 @@
 		precision highp float;
 
 		uniform vec2 u_ScreenSize;
+		uniform vec2 u_Offset;
+		uniform float u_Zoom;
 
 		vec3 color_map(float f){
 			vec3 color;
-			color.r = floor(f / 65536.0);
-			color.g = floor((f - color.r * 65536.0) / 256.0);
-			color.b = floor(f - color.r * 65536.0 - color.g * 256.0);
+			color.r = mod(f, .4) / .4;
+			color.g = mod(f, .25) / .25;
+			color.b = mod(f, .1) / .1;
 
-			return color / 256.0;
+			return color;
 		}
 
 		void main(){
-			float zoom = 20.0;
 			float cX = -0.7;
 			float cY = 0.27015;
-			float zx = (gl_FragCoord.x - u_ScreenSize.x*.5)/(.5*zoom*u_ScreenSize.x);
-			float zy = (gl_FragCoord.y - u_ScreenSize.y*.5)/(.5*zoom*u_ScreenSize.y);
+			float zx = u_Offset.x + (gl_FragCoord.x - u_ScreenSize.x*.5)/(.5*u_Zoom*u_ScreenSize.x)*u_ScreenSize.x/u_ScreenSize.y;
+			float zy = u_Offset.y + (gl_FragCoord.y - u_ScreenSize.y*.5)/(.5*u_Zoom*u_ScreenSize.y);
 			float i = 255.0;
 			for(int j = 0; j < 255; j += 1){
 				if(zx*zx + zy*zy > 4.0){
@@ -43,7 +44,7 @@
 				zx = tmp;
 				i -= 1.0;
 			}
-			gl_FragColor = vec4(color_map(i), 1.0);
+			gl_FragColor = vec4(color_map(i/255.0), 1.0);
 		}
 	</script>
 	<script src="gl.js"></script>

@@ -5,6 +5,10 @@ class FragFill{
 		this.w = w;
 		this.h = h;
 		this.sh = shader_ind;
+		this.offset = [0, 0];
+		this.zoom = 20;
+
+
 		let points = [[-w/2,-h/2],[w/2,-h/2],[-w/2,h/2],[w/2,h/2]];
 		this.pos_buffer = new Float32Array(this.p_fpv*points.length);
 		this.fsize = this.pos_buffer.BYTES_PER_ELEMENT;
@@ -27,6 +31,32 @@ class FragFill{
 
 		this.u_ScreenSize = gl.getUniformLocation(gl.program, 'u_ScreenSize');
 		gl.uniform2f(this.u_ScreenSize, w, h);
+
+		this.u_Offset = gl.getUniformLocation(gl.program, 'u_Offset');
+		gl.uniform2fv(this.u_Offset, this.offset);
+
+		this.u_Zoom = gl.getUniformLocation(gl.program, 'u_Zoom');
+		gl.uniform1f(this.u_Zoom, this.zoom);
+	}
+
+	set_size(w, h){
+		this.w = w;
+		this.h = h;
+		switch_shader(this.sh);
+		gl.uniform2f(this.u_ScreenSize, w, h);
+	}
+
+	move_offset(x, y){
+		this.offset[0] += x;
+		this.offset[1] += y;
+		switch_shader(this.sh);
+		gl.uniform2fv(this.u_Offset, this.offset);
+	}
+
+	move_zoom(d){
+		this.zoom += d;
+		this.zoom = Math.max(this.zoom, 1.0);
+		gl.uniform1f(this.u_Zoom, this.zoom);
 	}
 
 	draw(){
